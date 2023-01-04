@@ -29,12 +29,10 @@ const UserSchema = new mongoose.Schema(
          required: [true, "siz password kiritishingiz shart"],
 
          trim: true,
-         min: 4,
       },
-      mobile: {
+      mobil: {
          type: String,
          required: [true, "siz mobile kiritishingiz shart"],
-         unique: true,
       },
    },
    {

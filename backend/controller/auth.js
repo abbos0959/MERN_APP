@@ -1,12 +1,20 @@
 const UserModel = require("../model/User");
 const bcrypt = require("bcrypt");
 const JwtToken = require("../utils/jwtToken");
+const catchErrorAsync = require("../utils/catchUtil");
+const AppError = require("../utils/appError");
 
-const Register = async (req, res) => {
+const Register = async (req, res, next) => {
    try {
-      const { firstName, lastName, email, password, mobile } = req.body;
+      const { firstName, lastName, email, password, mobil } = req.body;
 
-      const hash = await bcrypt.hash(password, 10);
+      if (password.toString().length < 3) {
+         return next(
+            new AppError("Parol uzunligi kamida 3 ta belgidan iborat bo'lishi kerak", 400)
+         );
+      }
+
+      const hash = await bcrypt.hash(password.toString(), 10);
 
       const isuser = await UserModel.findOne({ email });
       if (isuser) {
@@ -18,7 +26,7 @@ const Register = async (req, res) => {
          lastName,
          email,
          password: hash,
-         mobile,
+         mobil,
       });
 
       JwtToken(user, 200, res);
@@ -29,4 +37,19 @@ const Register = async (req, res) => {
    }
 };
 
-module.exports = { Register };
+const login = catchErrorAsync(async (req, res, next) => {
+   const { email, password } = req.body;
+   const user = await UserModel.findOne({ email });
+
+   if (!user) {
+      return next(new AppError("Bunday user mavjud emas", 404));
+   }
+
+   const compare = await bcrypt.compare(password, user.password);
+
+   if (!compare) {
+      return next(new AppError("Parol yoki email xato", 401));
+   }
+   JwtToken(user, 200, res);
+});
+module.exports = { Register, login };
