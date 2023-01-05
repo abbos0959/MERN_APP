@@ -6,6 +6,7 @@ const multer = require("multer");
 const errorController = require("../controller/errorController");
 const AppError = require("../utils/appError");
 const authRouter = require("../router/auth");
+const productRouter = require("../router/productRouter");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(cookieParser());
 
 app.use("/api/v1", authRouter);
+app.use("/api/v1", productRouter);
 
 app.all("*", function (req, res, next) {
    next(new AppError(`bunday url mavjud emas: ${req.originalUrl}`, 404));
